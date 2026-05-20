@@ -1,0 +1,240 @@
+#include <stdio.h>
+
+void initialization(int matrix[][3], int votos_canciones[], int puntos_oyentes[])
+{
+    for(int i = 0; i < 100; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            matrix[i][j] = 0;
+        }
+
+        puntos_oyentes[i] = 0;
+    }
+
+    for(int i = 0; i < 10; i++)
+    {
+        votos_canciones[i] = 0;
+    }
+}
+
+int validation(int x, int y, int z)
+{
+    int flag = 0;
+
+    if(x >= 0 && x <= 9 && y >= 0 && y <= 9 && z >= 0 && z <= 9)
+    {
+        flag = 1;
+    }
+
+    return flag;
+}
+
+int read_votes(int matrix[][3])
+{
+    int total = 0;
+    int temp1, temp2, temp3;
+    int v;
+
+    for(int i = 0; i < 100; i++)
+    {
+        do
+        {
+            printf("Oyente %d: ", i);
+            scanf("%d %d %d", &temp1, &temp2, &temp3);
+
+            if(temp1 == -1)
+            {
+                return total;
+            }
+
+            v = validation(temp1, temp2, temp3);
+
+            if(v == 0)
+            {
+                printf("Error: las canciones deben estar entre 0 y 9.\n");
+            }
+
+        } while(v == 0);
+
+        matrix[i][0] = temp1;
+        matrix[i][1] = temp2;
+        matrix[i][2] = temp3;
+
+        total++;
+    }
+
+    return total;
+}
+
+void calculate_votes(int matrix[][3], int votos_canciones[], int total)
+{
+    int x, y, z;
+
+    for(int i = 0; i < total; i++)
+    {
+        x = matrix[i][0];
+        y = matrix[i][1];
+        z = matrix[i][2];
+
+        votos_canciones[x] = votos_canciones[x] + 3;
+        votos_canciones[y] = votos_canciones[y] + 2;
+        votos_canciones[z] = votos_canciones[z] + 1;
+    }
+}
+
+void most_voted(int votos_canciones[], int *first, int *second)
+{
+    *first = 0;
+    *second = 1;
+
+    if(votos_canciones[*second] > votos_canciones[*first])
+    {
+        *first = 1;
+        *second = 0;
+    }
+
+    for(int i = 2; i < 10; i++)
+    {
+        if(votos_canciones[i] > votos_canciones[*first])
+        {
+            *second = *first;
+            *first = i;
+        }
+        else if(votos_canciones[i] > votos_canciones[*second])
+        {
+            *second = i;
+        }
+    }
+}
+
+void print_songs(int votos_canciones[], int first, int second)
+{
+    printf("\nResultados de las canciones:\n");
+
+    for(int i = 0; i < 10; i++)
+    {
+        printf("Cancion %d: %d votos\n", i, votos_canciones[i]);
+    }
+
+    printf("\n1a cancion: %d\n", first);
+    printf("2a cancion: %d\n", second);
+}
+
+int validation_song(int matrix[][3], int oyente, int song)
+{
+    int flag = 0;
+
+    for(int i = 0; i < 3; i++)
+    {
+        if(matrix[oyente][i] == song)
+        {
+            flag = 1;
+        }
+    }
+
+    return flag;
+}
+
+void calculate_points(int matrix[][3], int puntos_oyentes[], int total, int first, int second)
+{
+    int temp1, temp2;
+
+    for(int i = 0; i < total; i++)
+    {
+        temp1 = validation_song(matrix, i, first);
+        temp2 = validation_song(matrix, i, second);
+
+        if(temp1 == 1)
+        {
+            puntos_oyentes[i] = puntos_oyentes[i] + 30;
+        }
+
+        if(temp2 == 1)
+        {
+            puntos_oyentes[i] = puntos_oyentes[i] + 20;
+        }
+
+        if(temp1 == 1 && temp2 == 1)
+        {
+            puntos_oyentes[i] = puntos_oyentes[i] + 10;
+        }
+    }
+}
+
+int winner(int puntos_oyentes[], int total)
+{
+    int win = 0;
+
+    for(int i = 1; i < total; i++)
+    {
+        if(puntos_oyentes[i] > puntos_oyentes[win])
+        {
+            win = i;
+        }
+    }
+
+    return win;
+}
+
+void print_listeners(int puntos_oyentes[], int total, int win)
+{
+    printf("\nPuntos por oyente:\n");
+
+    for(int i = 0; i < total; i++)
+    {
+        printf("Oyente %d: %d puntos\n", i, puntos_oyentes[i]);
+    }
+
+    if(total > 0)
+    {
+        printf("\nGanador: el oyente numero %d\n", win);
+    }
+    else
+    {
+        printf("\nNo hubo oyentes registrados.\n");
+    }
+}
+
+int main()
+{
+    int votos[100][3];
+    int votos_canciones[10];
+    int puntos_oyentes[100];
+
+    int total;
+    int first, second;
+    int win;
+
+    initialization(votos, votos_canciones, puntos_oyentes);
+
+    printf("Elija 3 de las mejores canciones de Bad Bunny.\n");
+    printf("Cada cancion esta enumerada del 0 al 9.\n\n");
+
+    printf("Lista de canciones:\n");
+    printf("0. Titi Me Pregunto\n");
+    printf("1. Me Porto Bonito\n");
+    printf("2. Ojitos Lindos\n");
+    printf("3. Moscow Mule\n");
+    printf("4. Dakiti\n");
+    printf("5. Yonaguni\n");
+    printf("6. Callaita\n");
+    printf("7. Safaera\n");
+    printf("8. La Cancion\n");
+    printf("9. Amorfoda\n\n");
+
+    printf("Si le atinas al top de canciones, podras ganar un premio.\n");
+    printf("Para terminar escriba -1 en el primer dato.\n\n");
+
+    total = read_votes(votos);
+
+    calculate_votes(votos, votos_canciones, total);
+    most_voted(votos_canciones, &first, &second);
+    print_songs(votos_canciones, first, second);
+
+    calculate_points(votos, puntos_oyentes, total, first, second);
+    win = winner(puntos_oyentes, total);
+    print_listeners(puntos_oyentes, total, win);
+
+    return 0;
+}
